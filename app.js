@@ -9,16 +9,33 @@ mongoose
   .then((db) => {
     console.log("Connected correctly to server.");
     return Dishes.create({
-      name: "Uthappizza",
+      name: "Uthappizza 2",
       description: "Test Pizza",
     });
   })
   .then((dish) => {
     console.log(dish);
-    return Dishes.find({}).exec();
+    return Dishes.findByIdAndUpdate(
+      dish._id,
+      {
+        $set: { description: "Updated Pizza" },
+      },
+      {
+        new: true,
+      }
+    ).exec();
   })
-  .then((dishes) => {
-    console.log(dishes);
+  .then((dish) => {
+    console.log(dish);
+    dish.comments.push({
+      rating: 5,
+      comments: "Great Job",
+      author: "Kiattipong",
+    });
+    return dish.save();
+  })
+  .then((result) => {
+    console.log(result);
     return Dishes.deleteMany({});
   })
   .then((result) => {
