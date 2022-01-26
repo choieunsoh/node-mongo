@@ -1,34 +1,46 @@
+require("dotenv").config();
 const MongoClient = require("mongodb").MongoClient;
 const assert = require("assert");
+const dbOps = require("./operations");
 
-const url2 =
-  "mongodb+srv://choieunsoh:2SXqQNgWF6n7FYsT@cluster0.jd2nr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-const url = `mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false`;
+const url = process.env.MONGO_DB || `mongodb://localhost:27017/`;
 const dbname = `conFusion`;
 
-MongoClient.connect(url2, (err, client) => {
+MongoClient.connect(url, (err, client) => {
   assert.equal(err, null);
   console.log(`Connected correctly to server.`);
 
   const db = client.db(dbname);
-  const dishes = db.collection("dishes");
-  dishes.insertOne(
-    { name: "Uthappizza", description: "Test" },
-    (err, result) => {
-      assert.equal(err, null);
-      console.log(`After Insert:`);
-      console.log(result);
+  const collName = "dishes";
+  dbOps.insertDocument(
+    db,
+    { name: "Pizza", description: "Test Pizza" },
+    collName,
+    (result) => {
+      console.log("Insert document\n", result);
 
-      dishes.find({}).toArray((err, docs) => {
-        assert.equal(err, null);
-        console.log(`Found:\n`);
-        console.log(docs);
+      dbOps.findDocuments(db, collName, (documents) => {
+        console.log("Found documents\n", documents);
 
-        db.dropCollection("dishes", (err, result) => {
-          assert.equal(err, null);
+        dbOps.updateDocument(
+          db,
+          { name: "Pizza" },
+          { description: "Updated desc" },
+          collName,
+          (result) => {
+            console.log("Update document\n", result);
 
-          client.close();
-        });
+            dbOps.findDocuments(db, collName, (documents) => {
+              console.log("Found documents\n", documents);
+
+              db.dropCollection(collName, (result) => {
+                console.log("Drop collection\n", result);
+
+                client.close();
+              });
+            });
+          }
+        );
       });
     }
   );
