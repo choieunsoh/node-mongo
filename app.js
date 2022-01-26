@@ -8,13 +8,10 @@ mongoose
   .connect(url)
   .then((db) => {
     console.log("Connected correctly to server.");
-
-    const newDish = Dishes({
+    return Dishes.create({
       name: "Uthappizza",
       description: "Test Pizza",
     });
-
-    return newDish.save();
   })
   .then((dish) => {
     console.log(dish);
