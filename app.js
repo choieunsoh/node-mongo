@@ -1,6 +1,5 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
-const { db } = require("./models/dishes");
 
 const Dishes = require("./models/dishes");
 const url = process.env.MONGO_DB || `mongodb://localhost:27017/`;
@@ -25,8 +24,12 @@ mongoose
     console.log(dishes);
     return Dishes.deleteMany({});
   })
+  .then((result) => {
+    console.log(result);
+    return mongoose.connection.close();
+  })
   .then(() => {
-    mongoose.connection.close();
+    console.log("Disconnected.");
   })
   .catch((err) => {
     console.log(err);
